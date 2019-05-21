@@ -1,4 +1,4 @@
-package com.yobijoss.rxjavaplayground.examples;
+package com.yobijoss.rxjavaplayground.samples;
 
 import io.reactivex.Observable;
 
