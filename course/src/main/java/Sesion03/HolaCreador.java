@@ -9,9 +9,9 @@ import java.util.List;
 
 public class HolaCreador {
 
-    public static void main(String ... args) {
+    public static void main(String... args) {
 
-                                                            // Handler, listener
+        // Handler, listener
         Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
             @Override  // on subscribe
             public void call(Subscriber<? super String> subscriber) {
@@ -26,16 +26,18 @@ public class HolaCreador {
 
         observable.subscribe((s) -> {
             System.out.println(s);
-        }, (t)-> {
+        }, (t) -> {
             System.out.println("Auxilio!");
         });
 
         observable.subscribe(
-                (s)->{System.out.println("Subscripcion 2: " + s);}
-                );
+                (s) -> {
+                    System.out.println("Subscripcion 2: " + s);
+                }
+        );
 //
         //////////////////
-        Observable<Integer> observableI = Observable.create((s)->{
+        Observable<Integer> observableI = Observable.create((s) -> {
             s.onNext(5);
             s.onNext(8);
             s.onNext(10);
@@ -56,16 +58,19 @@ public class HolaCreador {
 
             @Override // Called by observable created
             public void onNext(Integer i) {
-                switch (i){
-                    case 5: System.out.println("V");
-                            break;
-
-                    case 8: System.out.println("VIII");
+                switch (i) {
+                    case 5:
+                        System.out.println("V");
                         break;
 
-                    default: System.out.println("X");
-                             this.unsubscribe();
-                             break;
+                    case 8:
+                        System.out.println("VIII");
+                        break;
+
+                    default:
+                        System.out.println("X");
+                        this.unsubscribe();
+                        break;
                 }
             }
         };
@@ -79,18 +84,18 @@ public class HolaCreador {
 
         Observable<String> observableS = Observable.create((s) ->
         {
-           for(String msj : mensaje) {
-               if(!s.isUnsubscribed()) {
-                   s.onNext(msj);
-                   if(msj.equals("Hola"))
-                       s.onNext("Hi");
-                   if(msj.equals("Mundo")) {
-                       s.onNext("World");
-                       s.unsubscribe();
-                   }
-               }
-           }
-           s.onCompleted();
+            for (String msj : mensaje) {
+                if (!s.isUnsubscribed()) {
+                    s.onNext(msj);
+                    if (msj.equals("Hola"))
+                        s.onNext("Hi");
+                    if (msj.equals("Mundo")) {
+                        s.onNext("World");
+                        s.unsubscribe();
+                    }
+                }
+            }
+            s.onCompleted();
         });
 
         observableS.subscribe(System.out::println);
