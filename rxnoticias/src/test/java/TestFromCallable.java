@@ -40,39 +40,47 @@ public class TestFromCallable {
         TestSubscriber testSubscriber = new TestSubscriber();
 
         Stack<Integer> numbers = new Stack<>();
+        numbers.push(2);
+        numbers.push(2);
+        numbers.push(2);
         numbers.push(3);
-        numbers.push(5);
-        numbers.push(6);
-        numbers.push(7);
+        numbers.push(3);
 
         Observable.range(0, numbers.size() - 1)
-                .doOnNext(i -> {
-                    Integer totalNum = 0;
-
-                    if (!numbers.empty()) {
-                        totalNum = NumerosObservables.getTotal(
-                                NumerosObservables.getSumaIntegerObs(), Observable.just(numbers.pop()),
-                                Observable.just(numbers.pop())).;
+                .flatMap(i -> {
+                    if (!numbers.empty() || numbers.size() >= 2 ) {
+                        return NumerosObservables.getTotal(
+                                NumerosObservables.getMultiplicarIntegerObs(), Observable.just(numbers.pop()),
+                                Observable.just(numbers.pop()));
                     }
-                    return totalNum;
-                });
-
-        NumerosObservables.getTotal(
-                NumerosObservables.getSumaIntegerObs(), Observable.just(numbers.pop()), Observable.just(numbers.pop()))
-                .doOnNext(System.out::println)
+                    return Observable.just(0);
+                })
                 .flatMap(num -> {
-                            Integer totalNum = 0;
-                            while (!numbers.empty()) {
-                                 totalNum = NumerosObservables.getTotal(
-                                        NumerosObservables.getMultiplicarIntegerObs(), Observable.just(num),
-                                        Observable.just(numbers.pop())).doOnNext();
-                            }
-                            return totalNum;
-                        })
+                    System.out.println("Multiply: " + num);
+                    if (!numbers.empty()) {
+                        return NumerosObservables.getTotal(
+                                NumerosObservables.getSumaIntegerObs(), Observable.just(num),
+                                Observable.just(numbers.pop()));
+                    }
+                    return Observable.just(num);
+                })
+                .flatMap(num -> {
+                    System.out.println("Sum: " + num);
+                    if (!numbers.empty()) {
+                        return NumerosObservables.getTotal(
+                                NumerosObservables.getRestarIntegerObs(), Observable.just(num),
+                                Observable.just(numbers.pop()));
+                    }
+                    return Observable.just(num);
+                })
+                .map(num -> String.format("Resta: %d", num))
                 .doOnNext(System.out::println)
                 .subscribe(testSubscriber);
 
-        testSubscriber.assertCompleted();
+
+        testSubscriber.assertValue("Resta: 9");
+
+
     }
 
 
