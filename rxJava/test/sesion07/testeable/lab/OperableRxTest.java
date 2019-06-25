@@ -8,6 +8,7 @@ import rx.observers.TestSubscriber;
 
 import rx.Observable;
 
+import java.util.List;
 import java.util.Stack;
 import java.util.function.BiFunction;
 
@@ -107,7 +108,37 @@ public class OperableRxTest {
     @Test
     public void testRealmentePerronDe4() {
         // Ponga ud. aqui su test realmente perron para una operacion con 4 operadores
-        // ejemplo: (((2 * 30) + 3)* -2) - 15)
+        // ejemplo: (((2 * 30) + 3)* 2) - 15)  =  111
+
+        Stack< Observable< BiFunction<Integer, Integer, Integer> > > funciones = new Stack<>();
+        Stack< Observable<Integer> > operandos = new Stack<>();
+
+        String comando = "0 resta 15 multiplica1 2 suma 3 multiplica2 2 30";
+
+        String[] factores = comando.split(" ");
+
+        ConnectableObservable<String> interprete = Observable.from(factores).publish();
+
+        interprete.filter(operacion -> operacion.equals("resta"))
+                .subscribe(s -> funciones.push(operableRx.operadorRestaObservable()));
+        interprete.filter(operacion -> operacion.equals("multiplica1"))
+                .subscribe(s -> funciones.push(operableRx.operadorMultObservable()));
+        interprete.filter(operacion -> operacion.equals("suma"))
+                .subscribe(s -> funciones.push(operableRx.operadorSumaObservable()));
+        interprete.filter(operacion -> operacion.equals("multiplica2"))
+                .subscribe(s -> funciones.push(operableRx.operadorMultObservable()));
+        interprete.filter(operando -> operando.matches("\\d+"))
+                .map(Integer::new)
+                .subscribe(o -> operandos.push(operableRx.operandoObservable(o)));
+        interprete.connect();
+
+        while ( !funciones.empty() ) {
+            operandos.push(
+                    operableRx.operacionObservable(funciones.pop(), operandos.pop(), operandos.pop()));
+        }
+
+        operandos.pop().subscribe(testSubscriberI);
+        testSubscriberI.assertValue(111);
     }
 
     @Test

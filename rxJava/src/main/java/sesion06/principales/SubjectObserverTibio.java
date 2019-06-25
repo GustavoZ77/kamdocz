@@ -20,12 +20,12 @@ public class SubjectObserverTibio {
 
         crono.subscribe(publicistaObservador);
 
-        publicistaObservador.onNext(new Long(600));
+        publicistaObservador.onNext(new Long(500));
 
         otro.subscribe(t -> {
             System.out.println("Señal " + t);
         });
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
     }
 }
